@@ -3,8 +3,10 @@ import {
   buildAddExercisePayload,
   buildWorkoutCompletionPayload,
   buildWorkoutSetPayload,
+  buildWorkoutSetUpdatePayload,
   buildWorkoutStartPayload,
   type WorkoutSetInput,
+  type WorkoutSetUpdateInput,
 } from "./workout.service";
 
 describe("workoutService", () => {
@@ -61,6 +63,30 @@ describe("workoutService", () => {
       rpe: null,
       is_completed: false,
       notes: null,
+    });
+  });
+
+  it("builds a workout set update payload without insert-only fields", () => {
+    const input: WorkoutSetUpdateInput = {
+      setType: "working",
+      weight: 65,
+      reps: 8,
+      durationSeconds: null,
+      rir: 1,
+      rpe: 9,
+      isCompleted: true,
+      notes: "Last rep was hard",
+    };
+
+    expect(buildWorkoutSetUpdatePayload(input)).toEqual({
+      set_type: "working",
+      reps: 8,
+      weight: 65,
+      duration_seconds: null,
+      rir: 1,
+      rpe: 9,
+      is_completed: true,
+      notes: "Last rep was hard",
     });
   });
 
