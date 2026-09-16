@@ -20,6 +20,13 @@ export type StartWorkoutInput = {
   scheduledFor?: string | null;
 };
 
+export type AddExerciseInput = {
+  workoutId: number;
+  exerciseId: number;
+  variationId?: number | null;
+  orderIndex: number;
+};
+
 export function buildWorkoutSetPayload(input: WorkoutSetInput) {
   return {
     workout_exercise_id: input.workoutExerciseId,
@@ -52,6 +59,15 @@ export function buildWorkoutCompletionPayload() {
   };
 }
 
+export function buildAddExercisePayload(input: AddExerciseInput) {
+  return {
+    workout_id: input.workoutId,
+    exercise_id: input.exerciseId,
+    variation_id: input.variationId ?? null,
+    order_index: input.orderIndex,
+  };
+}
+
 export async function startWorkout(input: StartWorkoutInput) {
   const { data, error } = await supabase
     .from("workouts")
@@ -65,12 +81,80 @@ export async function startWorkout(input: StartWorkoutInput) {
   };
 }
 
+export async function getActiveWorkout(clientId: string) {
+  const { data, error } = await supabase
+    .from("workouts")
+    .select("*")
+    .eq("client_id", clientId)
+    .eq("status", "in_progress")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return {
+    data,
+    error,
+  };
+}
+
+export async function addWorkoutExercise(input: AddExerciseInput) {
+  const { data, error } = await supabase
+    .from("workout_exercises")
+    .insert(buildAddExercisePayload(input))
+    .select()
+    .single();
+
+  return {
+    data,
+    error,
+  };
+}
+
+export async function getWorkoutExercises(workoutId: number) {
+  const { data, error } = await supabase
+    .from("workout_exercises")
+    .select("*")
+    .eq("workout_id", workoutId)
+    .order("order_index", { ascending: true });
+
+  return {
+    data,
+    error,
+  };
+}
+
+export async function getExercises() {
+  const { data, error } = await supabase
+    .from("exercises")
+    .select("*")
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
+  return {
+    data,
+    error,
+  };
+}
+
 export async function saveWorkoutSet(input: WorkoutSetInput) {
   const { data, error } = await supabase
     .from("workout_sets")
     .insert(buildWorkoutSetPayload(input))
     .select()
     .single();
+
+  return {
+    data,
+    error,
+  };
+}
+
+export async function getWorkoutSets(workoutExerciseId: number) {
+  const { data, error } = await supabase
+    .from("workout_sets")
+    .select("*")
+    .eq("workout_exercise_id", workoutExerciseId)
+    .order("set_index", { ascending: true });
 
   return {
     data,

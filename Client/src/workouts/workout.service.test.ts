@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildAddExercisePayload,
   buildWorkoutCompletionPayload,
   buildWorkoutSetPayload,
   buildWorkoutStartPayload,
@@ -83,6 +84,22 @@ describe("workoutService", () => {
     expect(buildWorkoutCompletionPayload()).toEqual({
       status: "completed",
       completed_at: expect.any(String),
+    });
+  });
+
+  it("builds a workout exercise payload", () => {
+    expect(
+      buildAddExercisePayload({
+        workoutId: 10,
+        exerciseId: 25,
+        variationId: null,
+        orderIndex: 0,
+      }),
+    ).toEqual({
+      workout_id: 10,
+      exercise_id: 25,
+      variation_id: null,
+      order_index: 0,
     });
   });
 });
